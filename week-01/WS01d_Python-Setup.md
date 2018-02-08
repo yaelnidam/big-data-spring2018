@@ -1,4 +1,4 @@
-# Python Setup
+# Python Setup -- FUN
 
 Python is a valuable scripting language for data analysis and... well, just about anything really. We won't be getting into the weeds with Python this week. However, we're going to try to get ahead of the fact that managing a Python project environment can be nuanced and tricky. This workshop will prepare you and your workspace to manage Python projects; we'll be installing Python and the Hydrogen plug-in for Atom, which will allow you to execute scripts and display output from the comfort of the Atom text editor. It then introduces virtual environments using the `virtualenv` package for Python (which we'll install using the `pip` package manager); we'll be using these virtual environments to manage our projects this semester.
 
