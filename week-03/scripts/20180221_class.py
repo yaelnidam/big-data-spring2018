@@ -12,8 +12,33 @@ df.assign(hight=[0.5,0.4,0.6])
 path1='C:/Users/Yael nidam/Dropbox (MIT)/00_2018_Spring/03_Big_Data/10_github/big-data-spring2018/week-03/data/'
 
 os.chdir('../data/')
-df = pd.read_csv('skyhook_2017-07.csv', sep=',')
+df2 = pd.read_csv('skyhook_2017-07.csv', sep=',')
 
 df1 = pd.read_csv(path1 + 'skyhook_2017-07.csv', sep=',')
 
-df1
+df1.head()
+
+df1.dtypes
+
+df1.shape
+
+df1.shape[0]
+df1.shape[1]
+
+df1['count']
+
+df1.lat.unique()
+
+df1__multipleColumns = df1[['hour', 'cat', 'count']]
+df1__multipleColumns.head()
+
+df1['hour']==158
+
+time=df1[df1['hour']==158]
+time.head
+time.shape
+
+df1[(df1['hour']==158) & (df1['count']>50)]
+
+bastille=df1[df1['date']=='2017-07-14']
+bastille.head
