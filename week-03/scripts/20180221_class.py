@@ -41,4 +41,17 @@ time.shape
 df1[(df1['hour']==158) & (df1['count']>50)]
 
 bastille=df1[df1['date']=='2017-07-14']
-bastille.head
+bastille.head()
+
+bastille_enthusiasts=bastille[bastille['count']>bastille['count'].mean()]
+bastille_enthusiasts.head(10)
+
+df1.groupby('date')['count'].describe()
+
+df1.groupby(['date', 'hour'])['count'].describe()
+
+df1['count'].max()
+df1['count'].min()
+df1['count'].mean()
+df1['count'].std()
+df1['count'].count()
