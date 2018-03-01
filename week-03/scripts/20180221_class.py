@@ -55,3 +55,18 @@ df1['count'].min()
 df1['count'].mean()
 df1['count'].std()
 df1['count'].count()
+
+
+
+
+
+
+
+for i in range(0.168.24):
+    j=range(0,168,1)[i-5]
+
+    if (J>i):
+        df['hour'].replace(range(i,i_19,1), range(5,24,1), inplace=True)
+        df['hour'].replace()
+    else:
+        df['hour'].replace(range(j,i+19,1), range(0,24,1), inplace=True)
