@@ -66,7 +66,24 @@ Your first task is to create a bar chart (not a line chart!) of the total count 
 ### Solution
 
 ```python
+import pandas as pd
+import numpy as np
+import matplotlib.pylab as plt
+from itertools import cycle, islice
+import os
+import datetime
 
+%matplotlib inline
+path1='C:/Users/Yael nidam/Dropbox (MIT)/00_2018_Spring/03_Big_Data/10_github/big-data-spring2018/week-03/data/'
+df = pd.read_csv(path1 + 'skyhook_2017-07.csv', sep=',')
+
+df['date_new'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
+
+yael=df['count'].groupby(df['date_new']).sum()
+
+y=yael.plot(kind='bar', title ="Total count of GPS pings by date", fontsize=12, color=(1,0,0.8)); y.set_xlabel("Date", fontsize=12)
+y.set_ylabel("Total pings", fontsize=12)
+plt.show()
 ```
 
 ## Problem 2: Modify the Hours Column
@@ -79,6 +96,60 @@ After running your code, you should have either a new column in your DataFrame o
 
 ```python
 
+day_hours = df[df['date'] == '2017-07-10'].groupby('hour')['count'].sum()
+day_hours.plot()
+df['weekday'] = df['date_new'].apply(lambda x: x.weekday() + 1)
+df['weekday'].replace(7, 0, inplace = True)
+df.shape
+
+df[df['date'] == '2017-07-10'].groupby('hour')['count'].sum()
+
+for i in range(0, 168, 24):
+  j = range(0,168,1)[i - 5]
+  if (j > i):
+    df.drop(df[
+    (df['weekday'] == (i/24)) &
+    (
+    ( (df['hour'] < j) & (df['hour'] > i + 18) ) |
+    ( (df['hour'] > i + 18 ) & (df['hour'] < j) )
+    )
+    ].index, inplace = True)
+  else:
+    df.drop(df[
+    (df['weekday'] == (i/24)) &
+    (
+    (df['hour'] < j) | (df['hour'] > i + 18 )
+    )
+    ].index, inplace = True)
+
+df['hours_24']=df['hour']
+
+
+
+#Class explanation
+for i in range(0,168,24):
+    j=range(0,168,1)[i-5]
+    if (j>i):
+        df['hours_24'].replace(range(i,i-19,1), range(5,24,1), inplace=True)
+    else:
+        df['hours_24'].replace(range(j,i+19,1), range(0,24,1), inplace=True)
+
+
+#Alternative  idea?
+for i in range(0,168):
+    j=range(0,168)[i-5]
+    print(j,i)
+
+    if (j%24!=1):
+        df['hours_24'].replace(j,j%24, inplace=True)
+    else:
+        df['hours_24'].replace(j,0, inplace=True)
+
+df['hours_24'].unique()
+df['hour'].unique()
+
+
+
 ```
 
 ## Problem 3: Create a Timestamp Column
@@ -89,6 +160,8 @@ Now that you have both a date and a time (stored in a more familiar 24-hour rang
 
 ```python
 
+
+
 ```
 
 ## Problem 4: Create Two Line Charts of Activity by Hour
@@ -98,7 +171,11 @@ Create two more graphs. The first should be a **line plot** of **total activity*
 ### Solution
 
 ```python
+h24=df['count'].groupby(df['hours_24']).sum()
 
+h=h24.plot(kind='bar', title ="Total count of GPS pings by hour", fontsize=12, color=(1,0,0.8)); h.set_xlabel("Hour", fontsize=12)
+h.set_ylabel("Total pings", fontsize=12)
+plt.show()
 ```
 
 ## Problem 5: Create a Scatter Plot of Shaded by Activity
