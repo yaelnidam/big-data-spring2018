@@ -123,32 +123,31 @@ for i in range(0, 168, 24):
     ].index, inplace = True)
 
 df['hours_24']=df['hour']
+df['hours_25']=df['hour']
 
-
+#Check
+print(df.groupby('hour')['count'].sum())
 
 #Class explanation
-for i in range(0,168,24):
-    j=range(0,168,1)[i-5]
-    if (j>i):
-        df['hours_24'].replace(range(i,i-19,1), range(5,24,1), inplace=True)
-    else:
-        df['hours_24'].replace(range(j,i+19,1), range(0,24,1), inplace=True)
+for i in range(0, 168, 24):
+  j = range(0,168,1)[i - 5]
+  if (j > i):
+    df['hour'].replace(range(j, j + 5, 1), range(-5, 0, 1), inplace=True)
+    df['hour'].replace(range(i, i + 19, 1), range(0, 19, 1), inplace=True)
+  else:
+    df['hour'].replace(range(j, j + 24, 1), range(-5, 19, 1), inplace=True)
 
 
-#Alternative  idea?
-for i in range(0,168):
-    j=range(0,168)[i-5]
-    print(j,i)
+#Check
+print(df.groupby('hour')['count'].sum())
 
-    if (j%24!=1):
-        df['hours_24'].replace(j,j%24, inplace=True)
-    else:
-        df['hours_24'].replace(j,0, inplace=True)
-
-df['hours_24'].unique()
-df['hour'].unique()
-
-
+#Alternative  idea? (just keeping for record, please ignore)
+#for i in range(0,168):
+  #  j=range(0,168)[i-5]
+  #  if (j%24!=1):
+  #      df['hours_25'].replace(j,j%24, inplace=True)
+  #  else:
+  #      df['hours_25'].replace(j,0, inplace=True)
 
 ```
 
@@ -160,7 +159,7 @@ Now that you have both a date and a time (stored in a more familiar 24-hour rang
 
 ```python
 
-
+df['timestamp']=df['date_new']+pd.to_timedelta(df['hour'], unit='h')
 
 ```
 
@@ -171,7 +170,9 @@ Create two more graphs. The first should be a **line plot** of **total activity*
 ### Solution
 
 ```python
-h24=df['count'].groupby(df['hours_24']).sum()
+df['count'].groupby(df['timestamp']).sum().plot()
+
+h24=df['count'].groupby(df['hour']).sum()
 
 h=h24.plot(kind='bar', title ="Total count of GPS pings by hour", fontsize=12, color=(1,0,0.8)); h.set_xlabel("Hour", fontsize=12)
 h.set_ylabel("Total pings", fontsize=12)
@@ -183,6 +184,16 @@ plt.show()
 Pick three times (or time ranges) and use the latitude and longitude to produce scatterplots of each. In each of these scatterplots, the size of the dot should correspond to the number of GPS pings. Find the [Scatterplot documentation here](http://pandas.pydata.org/pandas-docs/version/0.19.1/visualization.html#scatter-plot). You may also want to look into how to specify a pandas Timestamp (e.g., pd.Timestamp) so that you can write a mask that will filter your DataFrame appropriately. Start with the [Timestamp documentation](https://pandas.pydata.org/pandas-docs/stable/timeseries.html#timestamps-vs-time-spans)!
 
 ```python
+df.head()
+df['timestamp'].unique()
+y1=df[df['timestamp']=='2017-07-007T23:00:00.000000000']
+y1.plot.scatter(x='lat', y='lon', s=df['count']*0.5, alpha=0.6, title ="Scatterplot of latitude and longitude on July 7th 2017 at 23:00")
+
+y2=df[df['timestamp']=='2017-07-007T08:00:00.000000000']
+y2.plot.scatter(x='lat', y='lon', s=df['count']*0.5, alpha=0.6, title ="Scatterplot of latitude and longitude on July 7th 2017 at 08:00")
+
+y3=df[df['timestamp']=='2017-07-007T17:00:00.000000000']
+y3.plot.scatter(x='lat', y='lon', s=df['count']*0.5, alpha=0.6, title ="Scatterplot of latitude and longitude on July 7th 2017 at 17:00")
 
 ```
 
@@ -193,3 +204,8 @@ For three of the visualizations you produced above, write a one or two paragraph
 1. A phenomenon that the data make visible (for example, how location services are utilized over the course of a day and why this might by).
 2. A shortcoming in the completeness of the data that becomes obvious when it is visualized.
 3. How this data could help us identify vulnerabilities related to climate change in the greater Boston area.
+
+##Answers:
+1. Looking into GPS pings on July 7th 2017 at different hours of the day, it seems like at 23:00 (night time) GPS pings are less scattered than they are at "rush" hours (8am, 5pm).
+2. Analysis of this data could benefit from understanding if there are special circumstances that might affect the amount of ping registered or their location. For example, if people are on vacation on July, this data may not be representative of a typical workday. There might be more people going to random locations than a usual day.
+3. This data helps us understand transportation pattern and may help plan more efficient modes of transport. With more analysis was can have a better understanding of where is a big demand for transportation and in which direction and time of day.  
