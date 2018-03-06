@@ -182,9 +182,9 @@ def get_tweets(
         break
       for tweet in new_tweets:
         # all_tweets = all_tweets.append(parse_tweet(tweet), ignore_index = True)
-        if write == True:
-            with open(out_file, 'w') as f:
-                f.write(jsonpickle.encode(tweet._json, unpicklable=False) + '\n')
+      if write == True:
+          with open(out_file, 'w') as f:
+              f.write(jsonpickle.encode(tweet._json, unpicklable=False) + '\n')
       max_id = new_tweets[-1].id
       tweet_count += len(new_tweets)
     except tweepy.TweepError as e:
