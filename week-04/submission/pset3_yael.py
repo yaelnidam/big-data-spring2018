@@ -132,19 +132,21 @@ tweets.shape
 tweets.head()
 
 
-#clean location
-bos_list = tweets[tweets['location'].str.contains("Boston", case=False)]['location']
-tweets['location'].replace(bos_list, 'Boston, MA', inplace = True)
+# def for cleaning location
+def cleanloc(x):
+    bos_list = x[x['location'].str.contains("Boston", case=False)]['location']
+    x['location'].replace(bos_list, 'Boston, MA', inplace = True)
 
-bos_list2 = tweets[tweets['location'].str.contains("boston")]['location']
-tweets['location'].replace(bos_list2, 'Boston, MA', inplace = True)
+    cambridge_list = x[x['location'].str.contains("Cambridge", case=False)]['location']
+    x['location'].replace(cambridge_list, 'Cambridge, MA', inplace = True)
 
-bos_list2 = tweets[tweets['location'].str.contains("BOSTON")]['location']
-tweets['location'].replace(bos_list2, 'Boston, MA', inplace = True)
+    usa = x[x['location'].str.contains("united States", case=False)]['location']
+    x['location'].replace(usa, 'USA', inplace = True)
 
-cambridge_list = tweets[tweets['location'].str.contains("Cambridge")]['location']
-tweets['location'].replace(cambridge_list, 'Cambridge, MA', inplace = True)
+    mass = x[x['location'].str.contains("massachusetts", case=False)]['location']
+    x['location'].replace(mass, 'MA', inplace = True)
 
+cleanloc(tweets)
 
 #count the amount of tweets per specific location
 tweets[tweets['location'].str.contains('toronto')].groupby('location')['id'].count()
@@ -152,42 +154,29 @@ tweets[tweets['location'].str.contains('toronto')].groupby('location')['id'].cou
 # Count of tweets by location
 tweets['location'].value_counts()
 
-#dataframe from series
-yael = tweets['location'].value_counts().to_frame()
-yael
-# mask for location count > 5
-yael2=yael[yael['location']>=5]
-#remove rows with no location
-yael_chart=yael2.drop([''])
-
-
-# Trying to understand latlng
-tweets['lat'].max()
-tweets[tweets['lat']!='NaN']
-
-
-
-
-# #clean duplicates
-# tweets[tweets.duplicated(subset = 'content', keep = False)]
-# tweets.drop_duplicates(subset = 'content', keep = False, inplace = True)
-
-# Count of tweets by location
-# tweets['location'].value_counts()
-
+#clean duplicates
+tweets[tweets.duplicated(subset = 'content', keep = False)]
+tweets.drop_duplicates(subset = 'content', keep = False, inplace = True)
 
 # loc_tweets = tweets[tweets['location'] != '']
 # count_tweets = loc_tweets.groupby('location')['id'].count()
-# type(count_tweets)
+# count_tweets
 # df_count_tweets = count_tweets.to_frame()
-# type(df_count_tweets)
 # df_count_tweets.columns
 # df_count_tweets.columns = ['count']
 # df_count_tweets
 # df_count_tweets.sort_index()
 
+#dataframe from series
+yael = tweets['location'].value_counts().to_frame()
+yael
+# mask for location count > 5
+yael2=yael[yael['location']>5]
+#remove rows with no location
+yael_chart=yael2.drop([''])
+
 # Create a list of colors (from iWantHue)
-colors2 = ["#697dc6","#5faf4c","#7969de","#b5b246",
+colors = ["#697dc6","#5faf4c","#7969de","#b5b246",
           "#cc54bc","#4bad89","#d84577","#4eacd7",
           "#cf4e33","#894ea8","#cf8c42","#d58cc9",
           "#737632","#9f4b75","#c36960"]
@@ -198,8 +187,29 @@ plt.axis('equal')
 plt.tight_layout()
 plt.show()
 
+# Trying to understand latlng
+tweets['lat'].min()
+tweets[tweets['lat']!='NaN']
+tweets['lat'].max()
+#Finding there are only 9 tweets with latlng values
+geoloc=tweets[tweets['lat']==tweets['lat'].max()]
+geoloc=tweets[tweets['lat']<0]
+len(geoloc)
+geoloc
 
+#create scatterplot of all the tweets that are geolocated (i.e. 9 tweets)
+scatter_geo1=tweets[tweets['lat']<0]
+scatter_geo1.plot.scatter(x='lat', y='lon', s=len(geoloc)*3, alpha=0.6, title ="Scatterplot of latitude and longitude of tweets")
+
+#remove empty location and save to csv
+withloc1=tweets[tweets['location']!='']
+withloc1.to_csv('tweets.csv', sep=',', index=False)
+
+
+
+## Definitions for new search with search tern 'housing'
 # Set a Lat Lon
+
 latlng = '42.359416,-71.093993' # Eric's office (ish)
 # Set a search distance
 radius = '5mi'
@@ -228,25 +238,25 @@ tweets2.shape
 tweets2.head()
 
 #clean location
-bos_list = tweets2[tweets2['location'].str.contains("Boston", case=False)]['location']
-tweets2['location'].replace(bos_list, 'Boston, MA', inplace = True)
-
-cambridge_list = tweets2[tweets2['location'].str.contains("Cambridge")]['location']
-tweets2['location'].replace(cambridge_list, 'Cambridge, MA', inplace = True)
-
-
-#count the amount of tweets per specific location
-tweets2[tweets2['location'].str.contains('Boston')].groupby('location')['id'].count()
+cleanloc(tweets2)
+tweets
 
 # Count of tweets by location
 tweets2['location'].value_counts()
 
 #dataframe from series
 housing = tweets2['location'].value_counts().to_frame()
-
+housing
 # mask for location count > 9
 housing2=housing[housing['location']>=9]
-
+housing2
 #remove rows with no location
 housing3=housing2.drop([''])
 housing3
+#It's impossible to create a scatterplot for this sample, because there are no latlng values
+scatter_geo2=tweets2[tweets2['lat']<0]
+len(scatter_geo2)
+
+#remove empty location and save to csv
+withloc=tweets2[tweets2['location']!='']
+withloc.to_csv('housing.csv', sep=',', index=False)
