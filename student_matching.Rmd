@@ -1,0 +1,222 @@
+---
+title: "Data Analysis Exercise: Random Matching"
+author: "Ezra Haber Glenn + His Amazing QR Class"
+date: "February 28, 2018"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This is a script to assign towns, countries, cities, and UN development goals/targets to students in the QR class.
+We plan to run it *live* in class on 2/28/2018.
+
+### Data Sources
+
+The Data Analysis Exercise will require students to work with three different data sets:
+
+- Open Space data for cities and town in Massachusetts
+- US Housing Survey data for 25 metro areas in the US
+- United Nations Millennium Development Goals data for countries in the world
+
+In order to complete the various sections of the assignment, each student will be randomly assigned:
+
+- two towns
+- one city/MSA
+- one country
+- one UN MDP goal/target
+
+### Getting started
+
+Let's load the data:
+```{r load-data}
+students=read.csv("student_list.csv")
+
+towns=read.csv("open_space/ma_towns.csv")
+towns=towns[,2:3]
+
+cities=read.csv("housing_survey/QR_AHS_data/ahs_all_occupied_units_2013.csv")
+cities=as.character(cities$geography)
+
+countries=read.csv("countries.csv")
+countries[[1]]=as.character(countries[[1]])
+
+mdg=read.csv("mdg.csv")
+mdg[[2]]=as.character(mdg[[2]])
+
+```
+
+It will be handy to know how many students we have on the list, so we can create a variable for that, too:
+```{r howmany?}
+stu.num=length(students[[1]])
+```
+
+This also gives us a chance to show off a cool feature of RMarkdown: we can evaluate code *inline,* like this:
+
+In this class there are `r stu.num` students.  Some of their names are: `r x=sample(1:stu.num,size=5); students[x[1:4],1]`, and `r students[x[5],1]`.  (And just so you see how that worked: those random sample index numbers were `r x`.)
+
+### Check out some of the data
+
+Just in case you want to see what the data looks like before we dig in, let's try this:
+
+```{r}
+head(students)
+head(towns)
+head(cities) # for some reason, this one is a vector, not a dataframe, but I think that's OK
+head(countries)
+head(mdg)
+```
+
+### Talk about Messy Data!
+
+Ugh -- that last one is a mess!  Don't these UN planners know how to edit down this stuff, so that people can say the indicators in a single breath.  Can you imagine running a public meeting (maybe in multiple languages with lots of translators) and needing to constantly keep referring to:
+
+> "Our progress meeting UN `r mdg[which.max(nchar(mdg[,2])),2]`"...??!?
+
+No worries: we can clean it up with the strtrim() function
+
+```{r}
+mdg[,3]=paste(strtrim(mdg[,2],40),"...", sep="")
+names(mdg)[3]="target.short"
+head(mdg[,3])
+```
+
+Still too long, but I think we can manage with that.
+
+## Finding random sets
+
+Next we make extensive use of the sample() function to pick `r stu.num*2` towns,  `r stu.num` cities,  `r stu.num` countries, and  `r stu.num` UN targets.  Note that for some of these we need to allow "replacement," since there are fewer than `r stu.num` and there would not be enough to go around.     
+```{r random-picks}
+stu.towns=towns[sample(x=1:length(towns[[1]]),size=2*stu.num),1:2]
+stu.cities=cities[sample(replace=T, x=1:length(cities),size=stu.num)]
+stu.countries=countries[sample(x=1:length(countries[[1]]),size=stu.num),]
+
+# note: here we want columns 1 and 3 -- the goal and the (shortened) target
+stu.targets=mdg[sample(x=1:21,42,replace=T),c(1,3)]
+
+
+```
+
+We could look at this now, but that might steal our thunder: let's save it all for the big reveal, which will be soon.  But first, just to be organaginzed, let's assemble all these selections into a single data.frame with the student names:
+
+```{r combine}
+stu.combine=data.frame(name=students,
+                       town.a.num=stu.towns[1:stu.num,1],
+                       town.a.name=stu.towns[1:stu.num,2],
+                       town.b.num=stu.towns[(1+stu.num):(2*stu.num),1],
+                       town.b.name=stu.towns[(1+stu.num):(2*stu.num),2],
+                       msa=stu.cities,
+                       country=stu.countries,
+                       mdg=stu.targets)
+
+# sometimes we get strange random row names -- no problem, but they can be confusing
+rownames(stu.combine)=NULL
+```
+
+And before we display it, we'll save an archive copy here as a csv:
+
+```{r save-csv}
+write.csv(stu.combine, file="./student_matching.csv", row.names=FALSE)
+
+```
+
+## The BIG REVEAL
+
+And now, let's print the entire data.frame, so everyone can see their assignments.  Although we could just print is like we did above, let's show off a bit and use the kable() function from the "knitr" package, with some cool add-ons from the kableExtra package. (You might need to run install.packages("knitr") and install.packages("kableExtra") to get this to work.)
+
+```{r big-reveal}
+library(knitr)
+library(kableExtra)
+kable(stu.combine, "html", caption="Class Assignments: Data Analysis Exercise, 2018")  %>%
+  kable_styling(c("striped", "bordered")) %>%
+  add_header_above(c(" ", "Open Space Towns" = 4, "Housing Survey MSA" = 1, "UN MDG Country, Goal, & Target" = 3))
+```
+
+And just to check and make sure we save this, let's click [this link to the .csv file](./student_matching.csv).
+
+## Showing off: bells and whistles
+
+### The power of dynamic report generation
+
+In addition to having this markdown script automagically generate a single static report html or pdf, there's a lot more you could do.  Imagine a script/markdown template that could be used to produce monthly --- or even daily --- reports.  And pre-scripted tables and graphs are just the start of it.  
+
+For example, we could run the script every week until the due date for this project, and have it automatically generate confidence-boosting emails based on the assignments for each student -- stuff like:
+
+#### An encouraging email
+
+```{r}
+x=sample(1:42,size=1)
+
+# this is sort of a "kludge," to get the long target name back (for comic effect below)
+x.target=mdg$target[mdg$target.short==stu.combine[x,9]]
+```
+
+---
+
+> From: QR Team
+>
+> Subject: QR Written Assignment #2
+>
+> Date: `r Sys.Date()`
+>
+> Hey, **`r stu.combine[x,1]`**,
+>
+> We hope you are making progress on your QR data analysis report, and expect that you are really enjoying learning about the open space in **`r stu.combine[x,3]`** and **`r stu.combine[x,5]`!**  We can't wait to learn what you are discovering about "`r x.target`" in **`r stu.combine[x,7]`** in order to meet the UN's `r stu.combine[x,8]`.
+>
+> As you think about the Housing Data, you'll probably want to take a DUSP-funded trip to **`r gsub(stu.combine[x,6], pattern=",.*$", replacement="")`** --- sorry, the QR budget can't include that!  Ha-ha-ha.
+>
+> Good luck, and be sure to let us know if you have any questions,
+>
+> your QR team,
+>
+> Andrea, Ezra, Hongmou, and Madeleine.
+>
+> ps: Don't forget, *the assignment is due on March 19* --- that's in just `r format(difftime("2018-03-19 11:00:00 EST", Sys.time(), units="mins")[[1]],big.mark=",")` minutes.
+
+---
+
+### Adding some graphics
+
+This data doesn't really lend itself to much graphic presentation, but just to show you that it's possible, we can include a plot of the distribution of the MSAs and the UN Goals, to see how that works.
+
+```{r}
+# set some graphic parameters so the labels fit
+par(mar=c(7.5,5.1,2.1,1.1))
+# plot with no labels -- we need to rotate them, which is surprisingly tricky in R
+myplot=plot(stu.combine$mdg.goal, xaxt = "n",  xlab = "", ylab="Number of Students with this Goal", main="Distribution of UN MDG Assignments", col=rainbow(8))
+
+# shorten the labels
+labels=gsub(levels(stu.combine$mdg.goal), pattern=":.*$" , replacement = "")
+
+#print label text
+text(myplot, par("usr")[3]-.5, labels = labels, srt = 315, adj = c(0,0), xpd = TRUE, cex=.9)
+mtext("Goals",1,line=10)
+axis(2)
+
+```
+
+```{r}
+## see above for what's going on here
+## don't get stressed about this, most of this is not necessary to make plots
+par(mar=c(11.5,4.1,2.1,4.1))
+myplot=plot(stu.combine$msa, xaxt = "n",  xlab = "", ylab="Number of Students with this MSA", main="Distribution of MSA Assignments", col=topo.colors(25, alpha=.6))
+labels=gsub(levels(stu.combine$msa), pattern = ",.*$", replacement = "")
+text(myplot, par("usr")[3]-.5, labels = labels, srt = 315, adj = c(0,0), xpd = TRUE, cex=.9)
+mtext("MSAs",1,line=10)
+axis(2)
+```
+
+(And as a nice aside, note that these are technically *not* histograms, and R is smart enough to know this: see how the bars don't touch?)
+
+Pretty neat, huh?
+
+## Questions? Concerns? Complaints?
+
+One nice feature of doing all this live in RMarkdown is that we have been *transparent* and *open* about how these assignments were made.  That said, I don't really actually care all that much which towns or countries or targets you work on --- mostly we just wanted to mix them up so you could work together some, but still have your own special problems in the end.  But if there is some compelling reason you'd like to work on a different town, country, or whatever, check with me and we can certainly discuss.
