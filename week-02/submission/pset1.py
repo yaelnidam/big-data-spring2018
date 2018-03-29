@@ -8,6 +8,8 @@ l.append("last") #A.4 Add a new string with text “last” to the end of the li
 print(l)
 print(len(l), "items in list") #A.5 Get the list length and print it.
 l[4]="new" #A.6 Replace the last item in the list with the string “new” and print
+# Good, but could also use reverse indexing, which is slightly more robust:
+l[-1] = 'new'
 print(l)
 
 
@@ -65,6 +67,11 @@ def checker(x): #function to check password for compliance with rules
         return "error"
 checker(password)
 
+checker("ab12Aa$oo")
+checker("ab12ca$")
+checker("ab1dcD$oo")
+checker("ab12caDoo")
+
 
 #F. Exponentiation Function"
 def exp(x,y):
@@ -74,6 +81,8 @@ def exp(x,y):
         total=total*x
         i=i+1
     return total
+
+exp(5,4)
 
 
 #G. Extra Credit: Min and Max Functions"
