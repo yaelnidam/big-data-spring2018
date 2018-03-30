@@ -134,8 +134,9 @@ tirs_path = os.path.join(DATA, (tifname+'b10.TIF'))
 
 #Calculate Land Surface Temperature
 lst = lst_calc(DATA)
-
-plt.imshow(lst, cmap='RdYlGn')
+plt.imshow(ndvi, cmap='Greens')
+plt.colorbar()
+plt.imshow(lst, cmap='Greens')
 plt.colorbar()
 
 # Write a tif file:
@@ -160,6 +161,12 @@ According to the [USGS Landsat documentation](https://landsat.usgs.gov/collectio
 Write a function that reclassifies an input Numpy array based on values stored in the BQA. The function should reclassify input data in such a way that pixels, *except for those that are clear* (for example, 2720), are assigned a value of `nan`. Use the `emissivity_calc` function as a model! We're doing something similar here! Your code will look like this:
 
 ```python
+
+## Calculating a Normalized Difference Vegetation Index
+red=tif2array(red_path)
+nir=tif2array(nir_path)
+tirs=tif2array(tirs_path)
+
 bqa_path = os.path.join(DATA, (tifname+'BQA.TIF'))
 bqa = tif2array(bqa_path)
 
@@ -180,11 +187,13 @@ def cloud_filter(array, bqa): #Filters out clouds and cloud shadows using values
 ndvi = ndvi_calc(red, nir)
 cloudfree_ndvi = cloud_filter(ndvi, bqa)
 cloudfree_lst = cloud_filter(lst, bqa)
+plt.imshow(cloudfree_lst)
+plt.colorbar()
 
-out_path_ndvi = os.path.join(DATA, 'Nidam_ndvi_20180311.tif')
+out_path_ndvi = os.path.join(DATA, 'Nidam_ndvi_20170831.tif')
 array2tif(tirs_path, out_path_ndvi, cloudfree_ndvi)
 
-out_path_lst = os.path.join(DATA, 'Nidam_lst_20180311.tif')
+out_path_lst = os.path.join(DATA, 'Nidam_lst_20170831.tif')
 array2tif(tirs_path, out_path_lst, cloudfree_lst)
 
 
