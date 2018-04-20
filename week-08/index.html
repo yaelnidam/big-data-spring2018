@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title> Learning D3 </title>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v4.js" charset="utf-8"></script>
+</head>
+
+<body>
+  <h1> Hello </h1>
+
+  <!-- <svg width="160" height="180"> -->
+      <!--all distances are taken from the top left corner -->
+    <!-- <rect x=30 width="20" height="40" fill=steelblue></rect>
+    <rect x=60 width="20" height="90" fill=steelblue></rect>
+    <rect x=90 width="20" height="30" fill=steelblue></rect>
+    <rect x=120 width="20" height="60" fill=steelblue></rect>
+  </svg> -->
+
+  <script>
+  //var ratdata=[40,90,30,60, 20, 40,100];
+  var neigh311=[];
+
+  d3.csv("data/neigh_311.csv", function (d) {
+    return{
+    neigh : d.neighborhood,
+    num_311: +d.num_311
+  };
+}, function (error, rows) {
+  neigh311=rows;
+  console.log(neigh311);
+  createVisualization();
+});
+
+  function createVisualization() {
+
+  var w = 150;
+  var h = 175;
+
+  var arrayLength=neigh311.length;
+  var maxValue=d3.max(neigh311, function(d) {return +d.num_311});
+  var x_axisLength=100;
+  var y_axisLength=100;
+
+  var yscale=d3.scaleLinear()
+  .domain([0,maxValue])
+  .range([0,y_axisLength]);
+
+  var svg = d3.select("body")
+    .append("svg")
+    .attr("width",w)
+    .attr("height",h);
+
+    var tooltip=d3.select("body")
+    .append("div")
+    .style("position", "absolute")
+    .style("font-family", "'Open Sans', sans-serif")
+    .style("font-size", "12px")
+    .style("z-index", "10")
+    .style("visability", "hidden");
+
+  svg.selectAll("rect") //select all rectangles in our page
+    .data(neigh311) //bind rata to rect
+    .enter() //create additional elements based on an input array
+    .append("rect")
+    .attr("x",function(d,i) {
+      return i*(x_axisLength/arrayLength) +30;
+    })
+    .attr("y",function (d) {
+      return h-yscale(d.num_311);
+    })
+    .attr("width",x_axisLength/arrayLength)
+    .attr("height",function(d){
+      return yscale(d.num_311)
+      })
+    .attr("fill", "steelblue")
+    .on("mouseover", function(d){
+      return tooltip.style("top", (event.pagey-10), +"px").text(d.neigh+":"+d.num_311);
+    })
+    .on("mouseout", function(d){
+      return tooltip.style("visability", "hidden");
+    });
+
+  svg.append("line")
+  .attr("x1",30)
+  .attr("y1", 75)
+  .attr ("x2", 30)
+  .attr("y2",175)
+  .attr("stroke", "black")
+  .attr("stroke-width", 2);
+
+  svg.append("text")
+  .attr("class", "y label")
+  .attr("text-anchor", "end")
+  .text("311 calls per neighborhood")
+  .attr("transform", "translate(20,20)", "rotate (-90)");
+}
+  </script>
+
+</body>
+<html>
