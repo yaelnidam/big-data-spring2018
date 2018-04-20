@@ -29,7 +29,7 @@ import matplotlib.pylab as plt
 %matplotlib inline
 
 # Read in the data
-
+df = pd.read_csv('/Users/ehuntley/Dropbox/teaching/big-data/data/skyhook_2017-07.csv', sep=',')
 df = pd.read_csv('week-03/data/skyhook_2017-07.csv', sep=',')
 
 # Create a new date column formatted as datetimes.
