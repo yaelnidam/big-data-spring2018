@@ -149,16 +149,16 @@
 
 		// STACKED BAR CHART WITH HOVER
 
-		var m = {top: 20, right: 100, bottom: 30, left: 100},
+		var m = {top: 20, right: 100, bottom: 200, left: 100},
 			width = +map.attr("width") - m.left - m.right,
 			height = +map.attr("height") - m.top - m.bottom,
 			g = chart.append("g").attr("transform", "translate(" + m.left + "," + m.top + ")");
 
 		// set x scale
 		var x = d3.scaleBand()
-			.rangeRound([0, width])
-			.paddingInner(0.05)
-			.align(0.1);
+		    .rangeRound([0, width])
+		    .padding(0.1)
+		    .align(0.1);
 
 		// set y scale
 		var y = d3.scaleLinear()
@@ -166,18 +166,19 @@
 
 		// set the colors
 		var z = d3.scaleOrdinal()
-			.range(["#2166ac","#b2182b","#aaa"]);
+		    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
 
 	  // var keys = results.columns.slice(1);
-		var keys = ["Democrat", "Republican", "Other"];
+		var keys = ["cc_count", "cw_count", "const_count","emp_count","twit_count","ss_count"];
 
-	  results.sort(function(a, b) { return b.total - a.total; });
+
+
+	  results.sort(function(a, b) { return b.tot_count - a.tot_count; });
 	  x.domain(results.map(function(d) { return d.Name; }));
-	  y.domain([0, d3.max(results, function(d) { return +d.total; })]).nice();
+	  y.domain([0, d3.max(results, function(d) { return +d.tot_count; })]).nice();
 	  z.domain(keys);
 
-		// console.log(d3.stack().keys(keys)(results));
 	  g.append("g")
 			.selectAll("g")
 			.data(d3.stack().keys(keys)(results))
