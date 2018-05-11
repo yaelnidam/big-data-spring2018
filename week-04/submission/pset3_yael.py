@@ -197,6 +197,14 @@ geoloc=tweets[tweets['lat']<0]
 len(geoloc)
 geoloc
 
+'''grading note: bringing in csv to view scatterplot and look at cleaned data'''
+tweets = pd.read_csv('/Users/phoebe/Dropbox (MIT)/big-data/data/pset3_CSVs/Nidam, Yael/36787064-tweets.csv')
+tweets.head()
+tweets.shape
+tweets['location'].unique()
+tweets['lon'].unique()
+tweets['lat'].unique()
+
 #create scatterplot of all the tweets that are geolocated (i.e. 9 tweets)
 scatter_geo1=tweets[tweets['lat']<0]
 scatter_geo1.plot.scatter(x='lat', y='lon', s=len(geoloc)*3, alpha=0.6, title ="Scatterplot of latitude and longitude of tweets")
@@ -253,6 +261,14 @@ housing2
 #remove rows with no location
 housing3=housing2.drop([''])
 housing3
+
+'''grading note: bringing in csv to view scatterplot and look at cleaned data'''
+tweets2 = pd.read_csv('/Users/phoebe/Dropbox (MIT)/big-data/data/pset3_CSVs/Nidam, Yael/36787060-housing.csv')
+tweets2.head()
+tweets2.shape
+tweets2['location'].unique()
+tweets2['lon'].unique()
+tweets2['lat'].unique()
 #It's impossible to create a scatterplot for this sample, because there are no latlng values
 scatter_geo2=tweets2[tweets2['lat']<0]
 len(scatter_geo2)
